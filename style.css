@@ -1,0 +1,148 @@
+body{
+    background-color: #111111;
+    overflow: hidden;
+}
+
+img{
+    position: absolute;
+    top: 200px;
+    left: 500px;
+    scale: 50%
+}
+
+#floor{
+    position: absolute;
+    width: 100%;
+    height: 100px;
+    background-color: gray;
+    bottom: 0;
+}
+.ball{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    /*left: 500px;*/
+    background-color: white;
+    border-radius: 50%;
+    visibility: visible;
+}
+
+#arrow{
+    position: absolute;
+    width: 20px;
+    /*height: 100px;*/
+    background-color: white;
+    border-radius: 10%;
+    transform-origin: 50% 0%;
+}
+
+label{
+    color: white;
+    user-select: none;
+}
+
+input{
+    /*user-select: none;*/
+}
+
+.squish{
+    animation: squish 0.05s ease-in 0s 1 normal;
+}
+
+@keyframes squish {
+    0% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(0.8);
+    }
+    100% {
+        transform: scaleY(1);
+    }
+}
+
+:root{
+    --rot: 50deg;
+}
+
+@keyframes explode {
+    0%{
+        /*opacity: 100%;*/
+        transform: scale(1);
+    }
+    100% {
+        /*opacity: 0%;*/
+        transform: scale(2);
+    }
+
+}
+
+.explode{
+    animation: explode 0.25s ease-in 0s 1 normal;
+}
+
+@keyframes bounce {
+    0%{
+        transform: translateY(0px) rotateX(0deg);
+    }
+    50% {
+        transform: translateY(-5px) rotateX(var(--rot));
+    }
+}
+
+.bounce{
+    animation: bounce 0.2s ease-in-out 0s 1 normal;
+}
+
+.shard{
+    /*animation: shard 0.5s ease-in-out 0s 1 normal;*/
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 10px solid #88aaff;
+}
+
+.wall{
+    position: absolute;
+    background-color: #777766;
+    border-radius: 0%;
+}
+
+#tutorial{
+    /*position: absolute;*/
+    margin-left: 35%;
+    /*margin: auto;*/
+    font-size: 25px;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.peg{
+    position: absolute;
+    background-color: cornflowerblue;
+    border-radius: 50%;
+    border: 2px solid dodgerblue;
+}
+
+.multiball{
+    position: absolute;
+    background-color: #b65767;
+    border-radius: 50%;
+    border: 2px solid #720841;
+
+}
+
+
+/*set backgorund image*/
+body{
+    background-image: url("/img/bg.jpg");
+    background-color: #666666;
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    ;
+    overflow: hidden;
+}
