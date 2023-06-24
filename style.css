@@ -148,7 +148,29 @@ input{
 .wall{
     position: absolute;
     background-color: #777766;
-    border-radius: 0%;
+    border-radius: 0;
+    border: 1px solid #555544;
+}
+
+@keyframes wallbounce {
+    0%{
+        border-radius: 0;
+    }
+    50% {
+        border-radius: 50%;
+        scale: 150%;
+    }
+
+}
+
+.bouncingwall{
+    animation: wallbounce 0.2s ease-in 0s 1 normal;
+}
+
+.bouncewall{
+    position: absolute;
+    background-color: #974caf;
+
 }
 
 #tutorial{

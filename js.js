@@ -33,10 +33,22 @@ class Ball{
     }
 
     update(){
-        this.xv = Math.sign(this.xv) * Math.max(Math.abs(this.xv) - this.hdrag, 0);
+        this.xv = Math.sign(this.xv) * Math.max(Math.abs(this.xv) - this.hdrag, 0); //horizontal drag
+        this.yv = Math.min(this.yv + GRAVITY, this.drag); //gravity
+
+        //speed limit
+        this.xv = Math.min(this.xv,10)
+        this.yv = Math.min(this.yv,10)
+
+        //antistuck
+        if(this.xv === 0){
+            this.xv = (Math.random() - 1 )/ 5;
+        }
+
         this.x += this.xv;
-        this.yv = Math.min(this.yv + GRAVITY, this.drag);
         this.y += this.yv;
+
+
         this.collision();
         // console.log("xv:" + this.xv +", yv:" + this.yv, this.y + this.elem.offsetHeight - floor.offsetTop)
 
@@ -210,6 +222,26 @@ class Wall{
 
 }
 
+class Bounce extends Wall{
+    constructor(x, y, w, h, elem) {
+        super(x,y,w,h,elem);
+        this.elem.classList.add("bouncewall")
+    }
+
+    collision(ball){
+        if(super.collision(ball))
+        {
+            ball.xv *= 1.4
+            ball.yv *= 1.4
+            this.elem.classList.remove("bouncingwall")
+            void this.elem.offsetWidth
+            this.elem.classList.add("bouncingwall")
+            return true
+        }
+        return false
+    }
+}
+
 class Peg extends Wall{
     constructor(x, y, w, h, elem) {
         super(x,y,w,h,elem);
@@ -304,12 +336,9 @@ class KeyPeg extends Peg{
         this.elem.classList.add("keypeg")
         this.targets = targets
         if(color !== undefined){
-            this.elem.style.borderColor = color;
             for (const target of this.targets) {
-                console.log(target)
-                console.log(target.elem.style.borderColor)
+            this.elem.style.borderColor = color;
                 target.elem.style.borderColor = color;
-                console.log(target.elem.style.borderColor)
             }
         }
     }
@@ -504,7 +533,7 @@ function generatePegs(amount=15){
     for (let i = 0; i < amount; i++) {
         walls.push(new Peg(space + i*space,500,30,20,document.createElement("div")));
         console.log(walls[walls.length-1])
-        walls.push(new Peg(i*space+space/2,400,30,20,document.createElement("div")));
+        walls.push(new Bounce(i*space+space/2,400,30,20,document.createElement("div")));
         console.log(walls[walls.length-1])
         walls.push(new Peg(space + i*space,300,30,20,document.createElement("div")));
         console.log(walls[walls.length-1])
@@ -523,13 +552,14 @@ key1wall3 = new Wall(1110,550,100,20,document.createElement("div"))
 walls.push(key1wall);
 walls.push(key1wall2);
 walls.push(key1wall3);
+walls.push(new Bounce(800,550,70,20,document.createElement("div")))
 // walls.push(new KeyPeg(1000,150,30,20,document.createElement("div"),[key1wall,key1wall2,key1wall3]));
 walls.push(new KeyPeg(1000,150,30,20,document.createElement("div"),[key1wall,key1wall2,key1wall3],"#40ff00"));
 walls.push(new FloorPeg(1040,580,30,20,document.createElement("div")));
 
-walls.push(new Wall(0,0,10,window.innerHeight,document.createElement("div")));
-walls.push(new Wall(window.innerWidth-10,0,10,window.innerHeight,document.createElement("div")));
+walls.push(new Wall(-100,0,110,window.innerHeight,document.createElement("div")));
+walls.push(new Wall(window.innerWidth-10,0,100,window.innerHeight,document.createElement("div")));
 // walls.push(new Wall(0,window.innerHeight-10,window.innerWidth,10,document.createElement("div"))); //bottom
-walls.push(new Wall(0,0,window.innerWidth,5,document.createElement("div"))); //top
+walls.push(new Wall(0,-10,window.innerWidth,15,document.createElement("div"))); //top
 
 setInterval(main,5)
