@@ -11,13 +11,19 @@
 
     <label for="balltype">Ball type</label>
     <select name="balltype" id="balltype">
-        <option value="metal">Metal</option>
         <option value="rubber">Rubber</option>
+        <option value="metal">Metal</option>
 <!--        <option value="glass">Glass</option>-->
         <option value="ice">Ice</option>
         <option value="slime">Slime</option>
 <!--        <option value="wall">Wall</option>-->
     </select>
+    <span>Balls used:</span>
+    <span id="ballcounter">0</span>
+    <span>Score:</span>
+    <span id="score">0</span>
+    <span>Time:</span>
+    <span id="timer">0</span>
 
     <button id="reset">Reset</button>
     <h1 id="tutorial" class="score">Click & drag to launch ball</h1>

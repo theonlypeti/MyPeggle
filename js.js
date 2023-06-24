@@ -6,7 +6,12 @@ let GRAVITY = 0.07;
 let BOUNCINESS = 0.8;
 let DRAG = 7;
 let HDRAG = 0.001;
-let BALLTYPE = "metal"
+let BALLTYPE = document.getElementById("balltype").value;
+let ballsused = 0;
+let time = 0;
+let timer = document.getElementById("timer");
+let score = 0;
+let scoreElem = document.getElementById("score");
 
 
 
@@ -17,7 +22,6 @@ class Ball{
         this.elem.style.top = y;
         this.x = x
         this.y = y
-        console.log(this.x, this.y)
         this.xv = 0;
         this.yv = 0;
         // this.bounciness = BOUNCINESS;
@@ -134,6 +138,16 @@ class Metal extends Ball{
     }
 }
 
+function checkWin() {
+    console.log(walls.filter(obj => obj instanceof Peg))
+    if (walls.filter(obj => obj instanceof Peg).length === 0){
+        performance.clearMarks("start")
+        setTimeout(function () {
+        alert("You win! Score: " + score);
+        },500)
+    }
+}
+
 class Wall{
     constructor(x,y,w,h,elem) {
         this.x = x;
@@ -142,9 +156,11 @@ class Wall{
         this.h = h;
         this.elem = elem
         this.elem.classList.add("wall")
-        document.body.insertBefore(this.elem, document.getElementById("balltype"))
+        document.body.insertBefore(this.elem, document.getElementById("balltype"));
     }
 
+
+    update(){}
     draw(){
         this.elem.style.left = this.x + "px";
         this.elem.style.top = this.y + "px";
@@ -179,11 +195,25 @@ class Wall{
         return false
     }
 
+    break(){
+        if (!this.elem.classList.contains("explode")) {
+            const elem = this.elem;
+            elem.classList.add("explode");
+            walls.splice(walls.indexOf(this), 1);
+
+            $('.explode').fadeOut(250, function () {
+                elem.remove();
+            });
+        }
+        checkWin();
+    }
+
 }
 
 class Peg extends Wall{
     constructor(x, y, w, h, elem) {
         super(x,y,w,h,elem);
+        this.score = 100;
         this.elem.classList.add("peg")
         this.elem.style.width = this.w + "px";
         this.elem.style.height = this.h + "px";
@@ -200,14 +230,94 @@ class Peg extends Wall{
     }
 
     break(){
-        console.log(walls)
-        if (!this.elem.classList.contains("explode")) {
-            const elem = this.elem;
-            elem.classList.add("explode");
-            walls.splice(walls.indexOf(this), 1);
-            $('.explode').fadeOut(250, function () {
-                elem.remove();
-             });
+        const scoretext = document.createElement("div");
+        scoretext.innerHTML = this.score;
+        scoretext.classList.add("scoretext");
+        scoretext.classList.add("float");
+
+        scoretext.style.left = this.x + "px";
+        scoretext.style.top = this.y - 50 + "px";
+        document.body.insertBefore(scoretext, document.getElementById("balltype"));
+
+        $('.scoretext').fadeOut(1000, function () {
+            scoretext.remove();
+        });
+
+        score += this.score;
+        updateScore();
+        super.break();
+    }
+
+}
+
+function updateScore(){
+    // score = Math.max(score, 0); //this encourages spamming the balls at the beginning, might need to implement some antispam
+    scoreElem.innerHTML = score;
+}
+
+class MovingPeg extends Peg{
+        constructor(x, y, w, h, elem) {
+            super(x,y,w,h,elem);
+            this.score = 200;
+            this.elem.classList.add("movingpeg")
+            this.origX = x
+            this.origY = y
+
+        }
+
+        update(){
+            this.x = this.origX + Math.sin(performance.now() / 1000) * 100;
+        }
+
+}
+
+class FloorPeg extends Peg{
+    constructor(x, y, w, h, elem) {
+        super(x,y,w,h,elem);
+        this.score = 500;
+        this.elem.classList.add("floorpeg")
+
+    }
+
+    break() {
+        super.break();
+        let floor = new Wall(0, window.innerHeight-10, window.innerWidth, 10, document.createElement("div"));
+        floor.elem.style.backgroundColor = "#ffdd00";
+        walls.push(floor)
+
+        setTimeout(() => {
+            floor.elem.classList.add("blinking");
+        }, 4000);
+
+        setTimeout(() => {
+            floor.elem.remove();
+            walls.splice(walls.indexOf(floor), 1);
+        }, 5000);
+    }
+
+}
+
+class KeyPeg extends Peg{
+    constructor(x, y, w, h, elem, targets, color) {
+        super(x,y,w,h,elem);
+        this.score = 500;
+        this.elem.classList.add("keypeg")
+        this.targets = targets
+        if(color !== undefined){
+            this.elem.style.borderColor = color;
+            for (const target of this.targets) {
+                console.log(target)
+                console.log(target.elem.style.borderColor)
+                target.elem.style.borderColor = color;
+                console.log(target.elem.style.borderColor)
+            }
+        }
+    }
+
+    break(){
+        super.break();
+        for (const target of this.targets) {
+            target.break();
         }
     }
 }
@@ -215,6 +325,7 @@ class Peg extends Wall{
 class MultiBall extends Peg{
     constructor(x, y, w, h, elem) {
         super(x,y,w,h,elem);
+        this.score = 500;
         this.elem.classList = ["multiball"];
     }
 
@@ -242,6 +353,9 @@ const balltypes = {
 
 let startpos = 0;
 window.onmousedown = function(event) {
+    if(time===0){
+        time = performance.mark("start");
+    }
     document.getElementById("tutorial").style.display = "none";
     if(event.clientY > 20){
         startpos = event
@@ -264,33 +378,38 @@ window.onmousedown = function(event) {
 window.onmouseup = function(event) {
     if(!dragging){return}
     if(BALLTYPE === "wall"){
-        console.log(walls)
     }
     else {
-
         const arrow = document.getElementById("arrow")
         const rot = parseInt(window.getComputedStyle(arrow).rotate)
+        console.log(rot)
         const anglerad = rot * Math.PI / 180;
+        console.log(anglerad)
         //velocities
         const xv = - Math.sin(anglerad);
         // const yv = Math.cos(anglerad) * 4;
         const v = 1;
         const yv = Math.sqrt(v * v - xv * xv);
+        console.log(xv, yv)
         //add the velocities together
         // const v = Math.sqrt(xv * xv + yv * yv);
-
-
         //make ball elem
         const ball = document.createElement("div");
 
+
         //make ball obj
         const ballobj = new balltypes[BALLTYPE](ball)
-        console.log(ballobj)
+
         const speed = 8
         ballobj.xv = xv * speed;
         ballobj.yv = yv * speed;
-
-
+        console.log(ballobj.xv, ballobj.yv)
+        if (ballsused > 0) {
+            score -= 500;
+            updateScore();
+        }
+        ballsused++;
+        document.getElementById("ballcounter").innerHTML = ballsused;
     }
     dragging = false;
 
@@ -311,7 +430,17 @@ function startarrow(event){
 //
 // objs.push(new Ball(ball))
 function main(){
+    let milis = 0;
+    if(time===0){
+        milis = 0
+    }else{
+        milis = performance.measure("timer", "start").duration
+    }
+    const seconds = Math.floor(milis / 1000) % 60
+    const minutes = Math.floor(seconds / 60)
+    timer.innerText = String(minutes).padStart(2, '0') + ":" + String(seconds%60).padStart(2, '0') + ":" + String(Math.round(milis)%1000).padStart(3, '0')
     for (const obj of walls){
+        obj.update();
         obj.draw();
     }
     for (const obj of objs){
@@ -367,20 +496,40 @@ addEventListener("selectstart", event => event.preventDefault());
 
 startarrow()
 
-function generatePegs(amount=20){
+
+
+function generatePegs(amount=15){
     let space = window.innerWidth/amount
+    space -= space / 10
     for (let i = 0; i < amount; i++) {
-        walls.push(new Peg(space + i*space,500,20,20,document.createElement("div")));
-        walls.push(new Peg(i*space-space/2,400,20,20,document.createElement("div")));
-        walls.push(new Peg(space + i*space,300,20,20,document.createElement("div")));
+        walls.push(new Peg(space + i*space,500,30,20,document.createElement("div")));
+        console.log(walls[walls.length-1])
+        walls.push(new Peg(i*space+space/2,400,30,20,document.createElement("div")));
+        console.log(walls[walls.length-1])
+        walls.push(new Peg(space + i*space,300,30,20,document.createElement("div")));
+        console.log(walls[walls.length-1])
+    }
+    for (let i = 0; i < amount/2; i++) {
+        walls.push(new MovingPeg(5*space + i * space, 200, 30, 20, document.createElement("div")));
     }
 }
 
 generatePegs()
-walls.push(new MultiBall(500,200,20,20,document.createElement("div")));
+walls.push(new MultiBall(500,250,30,20,document.createElement("div")));
+walls.push(new FloorPeg(500,100,30,20,document.createElement("div")));
+key1wall = new Wall(1000,550,100,20,document.createElement("div"))
+key1wall2 = new Wall(890,550,100,20,document.createElement("div"))
+key1wall3 = new Wall(1110,550,100,20,document.createElement("div"))
+walls.push(key1wall);
+walls.push(key1wall2);
+walls.push(key1wall3);
+// walls.push(new KeyPeg(1000,150,30,20,document.createElement("div"),[key1wall,key1wall2,key1wall3]));
+walls.push(new KeyPeg(1000,150,30,20,document.createElement("div"),[key1wall,key1wall2,key1wall3],"#40ff00"));
+walls.push(new FloorPeg(1040,580,30,20,document.createElement("div")));
 
 walls.push(new Wall(0,0,10,window.innerHeight,document.createElement("div")));
 walls.push(new Wall(window.innerWidth-10,0,10,window.innerHeight,document.createElement("div")));
 // walls.push(new Wall(0,window.innerHeight-10,window.innerWidth,10,document.createElement("div"))); //bottom
+walls.push(new Wall(0,0,window.innerWidth,5,document.createElement("div"))); //top
 
 setInterval(main,5)

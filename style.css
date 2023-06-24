@@ -41,6 +41,11 @@ label{
     user-select: none;
 }
 
+span{
+    color: white;
+    user-select: none;
+}
+
 input{
     /*user-select: none;*/
 }
@@ -81,6 +86,21 @@ input{
     animation: explode 0.25s ease-in 0s 1 normal;
 }
 
+@keyframes blinking {
+    0%{
+        opacity: 100%
+    }
+    100% {
+        opacity: 0%;
+    }
+
+}
+
+.blinking{
+    animation: blinking 0.1s linear 0s infinite alternate;
+}
+
+
 @keyframes bounce {
     0%{
         transform: translateY(0px) rotateX(0deg);
@@ -104,6 +124,27 @@ input{
     border-left: 10px solid #88aaff;
 }
 
+@keyframes float {
+    0%{
+        transform: translateY(0px);
+    }
+    100% {
+        transform: translateY(-100px);
+    }
+}
+
+.float{
+    animation: float 1s ease-in 0s 1 normal;
+}
+
+.scoretext{
+    position: absolute;
+    font-size: 20px;
+    color: white;
+    user-select: none;
+    opacity: 50%
+}
+
 .wall{
     position: absolute;
     background-color: #777766;
@@ -121,17 +162,36 @@ input{
 .peg{
     position: absolute;
     background-color: cornflowerblue;
-    border-radius: 50%;
+    /*border-radius: 50%;*/
     border: 2px solid dodgerblue;
 }
 
 .multiball{
     position: absolute;
     background-color: #b65767;
-    border-radius: 50%;
+    /*border-radius: 50%;*/
     border: 2px solid #720841;
 
 }
+
+.movingpeg{
+
+}
+
+.floorpeg{
+    position: absolute;
+    background-color: #b9b982;
+    /*border-radius: 50%;*/
+    border: 2px solid #94945e;
+}
+
+.keypeg{
+    position: absolute;
+    background-color: #a34cf5;
+    /*border-radius: 50%;*/
+    border: 2px solid #5e1b9d;
+}
+
 
 
 /*set backgorund image*/
@@ -143,6 +203,5 @@ body{
     background-repeat: no-repeat;
     background-position: center;
     background-attachment: fixed;
-    ;
     overflow: hidden;
 }
