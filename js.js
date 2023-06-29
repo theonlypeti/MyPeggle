@@ -48,7 +48,6 @@ class Ball{
         this.x += this.xv;
         this.y += this.yv;
 
-
         this.collision();
         // console.log("xv:" + this.xv +", yv:" + this.yv, this.y + this.elem.offsetHeight - floor.offsetTop)
 
@@ -166,8 +165,8 @@ class Wall{
         this.y = y;
         this.w = w;
         this.h = h;
-        this.elem = elem
-        this.elem.classList.add("wall")
+        this.elem = elem ?? document.createElement("div");
+        this.elem.classList = ["wall"]
         document.body.insertBefore(this.elem, document.getElementById("balltype"));
     }
 
@@ -209,7 +208,7 @@ class Wall{
 
     break(){
         if (!this.elem.classList.contains("explode")) {
-            const elem = this.elem;
+            const elem = this.elem; //dont remove xd
             elem.classList.add("explode");
             walls.splice(walls.indexOf(this), 1);
 
@@ -218,6 +217,25 @@ class Wall{
             });
         }
         checkWin();
+    }
+    
+    repr(){
+        let mystr = this.constructor.name + "("
+        for (const attr of Object.keys(this)) {
+            if (this.hasOwnProperty(attr)) {
+                if(attr === "elem"){
+                    continue
+                }
+                mystr += attr + "=" + this[attr] + ","
+            }
+        }
+        mystr = mystr.slice(0,mystr.length-1) + ")";
+        mystr.replace('\"', '\\\\"') //escape strings
+        return mystr;
+    }
+
+    toJSON(){
+        return this.repr();
     }
 
 }
@@ -243,13 +261,18 @@ class Bounce extends Wall{
 }
 
 class Peg extends Wall{
-    constructor(x, y, w, h, elem) {
+    constructor(x, y, w, h, score, elem) {
         super(x,y,w,h,elem);
-        this.score = 100;
+        // if(score == null){
+        //     this.score = 100;
+        // }
+        // else{
+        //     this.score = score
+        // }
+        this.score = score ?? 100;
         this.elem.classList.add("peg")
         this.elem.style.width = this.w + "px";
         this.elem.style.height = this.h + "px";
-
     }
 
     collision(ball){
@@ -288,27 +311,51 @@ function updateScore(){
 }
 
 class MovingPeg extends Peg{
-        constructor(x, y, w, h, elem) {
-            super(x,y,w,h,elem);
-            this.score = 200;
+        constructor(x, y, w, h, score=200, xd=0, yd=0, xo=0,yo=0, elem=null) {
+            super(x,y,w,h,score,elem);
+
+            this.origX = x;
+            this.origY = y;
+            this.xd = xd;
+            this.yd = yd;
+            this.xo = xo;
+            this.yo = yo;
+
             this.elem.classList.add("movingpeg")
-            this.origX = x
-            this.origY = y
 
         }
 
         update(){
-            this.x = this.origX + Math.sin(performance.now() / 1000) * 100;
+            this.x = this.origX + Math.sin((performance.now() / 1000 + this.xo)) * this.xd;
+            this.y = this.origY + Math.cos((performance.now() / 1000 + this.yo)) * this.yd;
         }
+
+    repr(){
+        let mystr = this.constructor.name + "(x=" + this.origX + ",y=" + this.origY + ","
+        for (const attr of Object.keys(this)) {
+            if (this.hasOwnProperty(attr)) {
+                if(["elem","x","y","origX","origY"].includes(attr)){
+                    continue
+                }
+                else{
+                    mystr += attr + "=" + this[attr] + ","
+                }
+            }
+        }
+        mystr = mystr.slice(0,mystr.length-1) + ")";
+        return mystr;
+    }
+
+    toJSON(){
+        return this.repr();
+    }
 
 }
 
 class FloorPeg extends Peg{
-    constructor(x, y, w, h, elem) {
-        super(x,y,w,h,elem);
-        this.score = 500;
+    constructor(x, y, w, h, score=500, elem) {
+        super(x,y,w,h,score,elem);
         this.elem.classList.add("floorpeg")
-
     }
 
     break() {
@@ -330,12 +377,12 @@ class FloorPeg extends Peg{
 }
 
 class KeyPeg extends Peg{
-    constructor(x, y, w, h, elem, targets, color) {
-        super(x,y,w,h,elem);
-        this.score = 500;
+    constructor(x, y, w, h, score=500, targets, color, elem) {
+        super(x,y,w,h,score,elem);
         this.elem.classList.add("keypeg")
         this.targets = targets
-        if(color !== undefined){
+        this.color = JSON.stringify(color)
+        if(color !== null){
             for (const target of this.targets) {
             this.elem.style.borderColor = color;
                 target.elem.style.borderColor = color;
@@ -349,12 +396,39 @@ class KeyPeg extends Peg{
             target.break();
         }
     }
+
+    repr(){
+        let mystr = this.constructor.name + "("
+        for (const attr of Object.keys(this)) {
+            if (this.hasOwnProperty(attr)) {
+                if(["elem"].includes(attr)){
+                    continue
+                }
+                else if(attr === "targets"){
+                    mystr += attr + "= [";
+                    for (const target of this.targets) {
+                        mystr += "walls[" + walls.indexOf(target) + "],"
+                    }
+                    mystr = mystr.slice(0,mystr.length-1) + "],";
+                }
+                else{
+                    mystr += attr + "=" + this[attr] + ","
+                }
+            }
+        }
+        mystr = mystr.slice(0,mystr.length-1) + ")";
+        mystr.replace('\"', '\\\\"') //escape strings
+        return mystr;
+    }
+
+    toJSON(){
+        return this.repr();
+    }
 }
 
 class MultiBall extends Peg{
-    constructor(x, y, w, h, elem) {
-        super(x,y,w,h,elem);
-        this.score = 500;
+    constructor(x, y, w, h, score=500, elem) {
+        super(x,y,w,h,score,elem);
         this.elem.classList = ["multiball"];
     }
 
@@ -411,15 +485,15 @@ window.onmouseup = function(event) {
     else {
         const arrow = document.getElementById("arrow")
         const rot = parseInt(window.getComputedStyle(arrow).rotate)
-        console.log(rot)
+        // console.log(rot)
         const anglerad = rot * Math.PI / 180;
-        console.log(anglerad)
+        // console.log(anglerad)
         //velocities
         const xv = - Math.sin(anglerad);
         // const yv = Math.cos(anglerad) * 4;
         const v = 1;
         const yv = Math.sqrt(v * v - xv * xv);
-        console.log(xv, yv)
+        // console.log(xv, yv)
         //add the velocities together
         // const v = Math.sqrt(xv * xv + yv * yv);
         //make ball elem
@@ -432,7 +506,7 @@ window.onmouseup = function(event) {
         const speed = 8
         ballobj.xv = xv * speed;
         ballobj.yv = yv * speed;
-        console.log(ballobj.xv, ballobj.yv)
+        // console.log(ballobj.xv, ballobj.yv)
         if (ballsused > 0) {
             score -= 500;
             updateScore();
@@ -502,7 +576,7 @@ function facing(elem,x=0,y=0,offset=0){
     elem.style.rotate = Math.atan2(ey - y, ex - x) * 180 / Math.PI + offset + "deg"
 }
 
-document.getElementById("reset").addEventListener("click", function(event) {
+function resetLevel() {
     objs = [];
     const balls = document.getElementsByClassName("ball")
     let balls2 = Array.from(balls)
@@ -511,10 +585,14 @@ document.getElementById("reset").addEventListener("click", function(event) {
     }
 
     let walls2 = Array.from(walls)
-    for (const wall of walls2) {
-        wall.elem.remove()
-    }
-    walls = [];
+    walls.map(elem=>{
+        elem.elem.remove();
+    })
+    walls = []
+}
+
+document.getElementById("reset").addEventListener("click", function(event) {
+    resetLevel();
 })
 
 document.getElementById("balltype").addEventListener("change", function(event) {
@@ -531,35 +609,56 @@ function generatePegs(amount=15){
     let space = window.innerWidth/amount
     space -= space / 10
     for (let i = 0; i < amount; i++) {
-        walls.push(new Peg(space + i*space,500,30,20,document.createElement("div")));
-        console.log(walls[walls.length-1])
-        walls.push(new Bounce(i*space+space/2,400,30,20,document.createElement("div")));
-        console.log(walls[walls.length-1])
-        walls.push(new Peg(space + i*space,300,30,20,document.createElement("div")));
-        console.log(walls[walls.length-1])
+        walls.push(new Peg(space + i*space,500,30,20));
+        walls.push(new Bounce(i*space+space/2,400,30,20));
+        walls.push(new Peg(space + i*space,300,30,20));
     }
     for (let i = 0; i < amount/2; i++) {
-        walls.push(new MovingPeg(5*space + i * space, 200, 30, 20, document.createElement("div")));
+        walls.push(new MovingPeg(4*space + i * space, 200, 30, 20, undefined, 0,50,(360/(amount/2+1))*i,(180/(amount/2))*i));
     }
 }
 
+function exportLevel(){
+    let exportstring = JSON.stringify(walls)
+    console.log(exportstring);
+    return exportstring;
+
+}
+
+function importLevel(){
+
+    // let level = exportLevel()
+    let level = "[\"Peg(x=92.16000000000001,y=500,w=30,h=20,score=100)\",\"Bounce(x=46.080000000000005,y=400,w=30,h=20)\",\"Peg(x=92.16000000000001,y=300,w=30,h=20,score=100)\",\"Peg(x=184.32000000000002,y=500,w=30,h=20,score=100)\",\"Bounce(x=138.24,y=400,w=30,h=20)\",\"Peg(x=184.32000000000002,y=300,w=30,h=20,score=100)\",\"Peg(x=276.48,y=500,w=30,h=20,score=100)\",\"Bounce(x=230.40000000000003,y=400,w=30,h=20)\",\"Peg(x=276.48,y=300,w=30,h=20,score=100)\",\"Peg(x=368.64000000000004,y=500,w=30,h=20,score=100)\",\"Bounce(x=322.56,y=400,w=30,h=20)\",\"Peg(x=368.64000000000004,y=300,w=30,h=20,score=100)\",\"Peg(x=460.80000000000007,y=500,w=30,h=20,score=100)\",\"Bounce(x=414.72,y=400,w=30,h=20)\",\"Peg(x=460.80000000000007,y=300,w=30,h=20,score=100)\",\"Peg(x=552.96,y=500,w=30,h=20,score=100)\",\"Bounce(x=506.88000000000005,y=400,w=30,h=20)\",\"Peg(x=552.96,y=300,w=30,h=20,score=100)\",\"Peg(x=645.12,y=500,w=30,h=20,score=100)\",\"Bounce(x=599.0400000000001,y=400,w=30,h=20)\",\"Peg(x=645.12,y=300,w=30,h=20,score=100)\",\"Peg(x=737.2800000000001,y=500,w=30,h=20,score=100)\",\"Bounce(x=691.2000000000002,y=400,w=30,h=20)\",\"Peg(x=737.2800000000001,y=300,w=30,h=20,score=100)\",\"Peg(x=829.44,y=500,w=30,h=20,score=100)\",\"Bounce(x=783.3600000000001,y=400,w=30,h=20)\",\"Peg(x=829.44,y=300,w=30,h=20,score=100)\",\"Peg(x=921.6,y=500,w=30,h=20,score=100)\",\"Bounce(x=875.5200000000001,y=400,w=30,h=20)\",\"Peg(x=921.6,y=300,w=30,h=20,score=100)\",\"Peg(x=1013.7600000000001,y=500,w=30,h=20,score=100)\",\"Bounce(x=967.6800000000002,y=400,w=30,h=20)\",\"Peg(x=1013.7600000000001,y=300,w=30,h=20,score=100)\",\"Peg(x=1105.92,y=500,w=30,h=20,score=100)\",\"Bounce(x=1059.8400000000001,y=400,w=30,h=20)\",\"Peg(x=1105.92,y=300,w=30,h=20,score=100)\",\"Peg(x=1198.0800000000002,y=500,w=30,h=20,score=100)\",\"Bounce(x=1152,y=400,w=30,h=20)\",\"Peg(x=1198.0800000000002,y=300,w=30,h=20,score=100)\",\"Peg(x=1290.2400000000002,y=500,w=30,h=20,score=100)\",\"Bounce(x=1244.16,y=400,w=30,h=20)\",\"Peg(x=1290.2400000000002,y=300,w=30,h=20,score=100)\",\"Peg(x=1382.4000000000003,y=500,w=30,h=20,score=100)\",\"Bounce(x=1336.3200000000002,y=400,w=30,h=20)\",\"Peg(x=1382.4000000000003,y=300,w=30,h=20,score=100)\",\"MovingPeg(x=368.64000000000004,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=0,yo=0)\",\"MovingPeg(x=460.80000000000007,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=42.35294117647059,yo=24)\",\"MovingPeg(x=552.96,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=84.70588235294117,yo=48)\",\"MovingPeg(x=645.1200000000001,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=127.05882352941177,yo=72)\",\"MovingPeg(x=737.2800000000001,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=169.41176470588235,yo=96)\",\"MovingPeg(x=829.44,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=211.76470588235293,yo=120)\",\"MovingPeg(x=921.6000000000001,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=254.11764705882354,yo=144)\",\"MovingPeg(x=1013.7600000000002,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=296.4705882352941,yo=168)\",\"MultiBall(x=500,y=250,w=30,h=20,score=500)\",\"FloorPeg(x=500,y=100,w=30,h=20,score=500)\",\"Wall(x=1000,y=550,w=100,h=20)\",\"Wall(x=890,y=550,w=100,h=20)\",\"Wall(x=1110,y=550,w=100,h=20)\",\"Bounce(x=800,y=550,w=70,h=20)\",\"KeyPeg(x=1000,y=150,w=30,h=20,score=500,targets= [walls[55],walls[56],walls[57]],color=\\\"#40ff00\\\")\",\"FloorPeg(x=1040,y=580,w=30,h=20,score=500)\",\"Wall(x=-100,y=0,w=110,h=722)\",\"Wall(x=1526,y=0,w=100,h=722)\",\"Wall(x=0,y=-10,w=1536,h=15)\"]"
+    resetLevel();
+    level = JSON.parse(level);
+    for (const levelElement of level) {
+        let wall = eval("new " + levelElement);
+        walls.push(wall);
+    }
+    console.log(walls)
+
+}
+
 generatePegs()
-walls.push(new MultiBall(500,250,30,20,document.createElement("div")));
-walls.push(new FloorPeg(500,100,30,20,document.createElement("div")));
-key1wall = new Wall(1000,550,100,20,document.createElement("div"))
-key1wall2 = new Wall(890,550,100,20,document.createElement("div"))
-key1wall3 = new Wall(1110,550,100,20,document.createElement("div"))
+walls.push(new MultiBall(500,250,30,20));
+walls.push(new FloorPeg(500,100,30,20));
+key1wall = new Wall(1000,550,100,20)
+key1wall2 = new Wall(890,550,100,20)
+key1wall3 = new Wall(1110,550,100,20)
 walls.push(key1wall);
 walls.push(key1wall2);
 walls.push(key1wall3);
-walls.push(new Bounce(800,550,70,20,document.createElement("div")))
-// walls.push(new KeyPeg(1000,150,30,20,document.createElement("div"),[key1wall,key1wall2,key1wall3]));
-walls.push(new KeyPeg(1000,150,30,20,document.createElement("div"),[key1wall,key1wall2,key1wall3],"#40ff00"));
-walls.push(new FloorPeg(1040,580,30,20,document.createElement("div")));
+walls.push(new Bounce(800,550,70,20))
+// walls.push(new KeyPeg(1000,150,30,20,[key1wall,key1wall2,key1wall3]));
+walls.push(new KeyPeg(1000,150,30,20,undefined,targets=[key1wall,key1wall2,key1wall3],color="#40ff00"));
+walls.push(new FloorPeg(1040,580,30,20));
 
-walls.push(new Wall(-100,0,110,window.innerHeight,document.createElement("div")));
-walls.push(new Wall(window.innerWidth-10,0,100,window.innerHeight,document.createElement("div")));
-// walls.push(new Wall(0,window.innerHeight-10,window.innerWidth,10,document.createElement("div"))); //bottom
-walls.push(new Wall(0,-10,window.innerWidth,15,document.createElement("div"))); //top
+walls.push(new Wall(x=-100,y=0,w=110,h=window.innerHeight));
+walls.push(new Wall(window.innerWidth-10,0,100,window.innerHeight));
+// walls.push(new Wall(0,window.innerHeight-10,window.innerWidth,10)); //bottom
+walls.push(new Wall(0,-10,window.innerWidth,15)); //top
 
+console.log(walls)
 setInterval(main,5)
+
+//TODO on import scores are wrong
