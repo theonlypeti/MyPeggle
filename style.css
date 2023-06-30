@@ -190,9 +190,14 @@ input{
 
 .multiball{
     position: absolute;
-    background-color: #b65767;
+
     /*border-radius: 50%;*/
     border: 2px solid #720841;
+    background: url("img/split.png");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: #b65767;
 
 }
 
@@ -202,21 +207,27 @@ input{
 
 .floorpeg{
     position: absolute;
-    background-color: #b9b982;
     /*border-radius: 50%;*/
     border: 2px solid #94945e;
+    background: url("img/angel_save.png");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: #cbcb35;
 }
 
 .keypeg{
     position: absolute;
-    background-color: #a34cf5;
+    /*background-color: #a34cf5;*/
     /*border-radius: 50%;*/
-    border: 2px solid #5e1b9d;
+    background: url("img/key.png");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: #88aaff;
+    border: 2px solid #2289e5;
 }
 
-
-
-/*set backgorund image*/
 body{
     background-image: url("/img/bg.jpg");
     background-color: #666666;

@@ -7,17 +7,18 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 <body>
+<div id="anchor"></div>
 <!--    <div id="floor"></div>-->
 
-    <label for="balltype">Ball type</label>
-    <select name="balltype" id="balltype">
-        <option value="rubber">Rubber</option>
-        <option value="metal">Metal</option>
-<!--        <option value="glass">Glass</option>-->
-        <option value="ice">Ice</option>
-        <option value="slime">Slime</option>
+<!--    <label for="balltype">Ball type</label>-->
+<!--    <select name="balltype" id="balltype">-->
+<!--        <option value="rubber">Rubber</option>-->
+<!--        <option value="metal">Metal</option>-->
+<!--&lt;!&ndash;        <option value="glass">Glass</option>&ndash;&gt;-->
+<!--        <option value="ice">Ice</option>-->
+<!--        <option value="slime">Slime</option>-->
 <!--        <option value="wall">Wall</option>-->
-    </select>
+<!--    </select>-->
     <span>Balls used:</span>
     <span id="ballcounter">0</span>
     <span>Score:</span>
@@ -25,10 +26,10 @@
     <span>Time:</span>
     <span id="timer">0</span>
 
-    <button id="reset">Reset</button>
+    <button id="reset">Clear</button>
     <button id="export" onclick="exportLevel()">Export</button>
     <button id="import" onclick="importLevel()">Import</button>
-    <h1 id="tutorial" class="score">Click & drag to launch ball</h1>
+    <h1 id="tutorial" class="score">Click to launch ball</h1>
 
     <!--<label for="bounce">Bounciness</label>-->
     <!--<input type="range" min=0 max=1 step=0.1 id="bounce" value=0.8>-->
