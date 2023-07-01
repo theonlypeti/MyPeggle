@@ -348,7 +348,6 @@ class KeyPeg extends Peg{
         super(x,y,w,h,score,elem);
         this.elem.classList.add("keypeg")
         this.targets = targets
-        // this.color = JSON.stringify(color)
         this.color = color;
         if(color !== null){
             this.elem.style.borderColor = color;
@@ -418,8 +417,8 @@ class MultiBall extends Peg{
         for (let i = 0; i < this.ballAmount; i++) {
             const ball = document.createElement("div")
             const ballobj = new balltypes[BALLTYPE](ball,this.x,this.y)
-            ballobj.xv = Math.random() * 6 - 5;
-            ballobj.yv = Math.random() * 6 - 5;
+            ballobj.xv = Math.random() * 6 - 3;
+            ballobj.yv = Math.random() * 6 - 3;
         }
         super.break();
     }

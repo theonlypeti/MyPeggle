@@ -52,11 +52,11 @@ const balltypes = {
 
 let startpos = 0;
 window.onmousedown = function(event) {
-    if(time==null){
-        time = performance.mark("start");
-    }
     document.getElementById("tutorial").style.display = "none";
-    if(event.clientY > 20){
+    if(event.clientY > 30){
+        if(time==null){
+            time = performance.mark("start");
+        }
         startpos = event
         dragging = true;
         if(BALLTYPE === "wall"){
@@ -65,7 +65,7 @@ window.onmousedown = function(event) {
             let x = event.clientX; let y = event.clientY
             wallobj = new balltypes[BALLTYPE](x,y,0,0,wall)
             walls.push(wallobj);
-            document.body.insertBefore(wall, floor)
+            document.body.insertBefore(wall,  document.getElementById("anchor"))
         }
         else{
             // startarrow(event)
@@ -266,8 +266,9 @@ setInterval(main,5);
 //TODO bomb ball?
 //TODO glass blocks to shatter?
 //TODO somehow limit num of balls that fits gameplay style
-//TODO timer starts when clicking on buttons
+//DONE timer starts when clicking on buttons
 //DONE breaking a keyblock as last block calls the checkwin twice
 //TODO multiple level loading and saving
 //TODO chunking
 //DONE move classes out of this file lol
+//DONE breaking pegs, then breaking the same ones with keypegs as targets activates them a second time (gives score, multi spawns balls)
