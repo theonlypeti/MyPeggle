@@ -7,363 +7,10 @@ let modal = document.getElementById("editormodal");
 let forbidden_attrs = ["x", "y","elem","origX","origY"]; //attrs that should not be set manually and therefore should not appear in the editor
 let startpos = null; //event, for where the dragging has started
 let paused = true;
+let gridsnapbutton = document.getElementById("gridsnap");
+gridsnapbutton.style.backgroundColor = "#eeaaaa"
+let gridsnap = false;
 // let WALLTYPE = "wall";
-
-
-class Ball{
-    constructor(elem,x=window.innerWidth/2,y=0){
-        this.elem = elem;
-        this.elem.style.left = x;
-        this.elem.style.top = y;
-        this.x = x
-        this.y = y
-        this.xv = 0;
-        this.yv = 0;
-        // this.bounciness = BOUNCINESS;
-        this.drag = DRAG;
-        // this.hdrag = HDRAG;
-        this.elem.className = "ball"
-        objs.push(this);
-        document.body.insertBefore(this.elem, document.getElementById("anchor"));
-    }
-
-    update(){
-        this.xv = Math.sign(this.xv) * Math.max(Math.abs(this.xv) - this.hdrag, 0); //horizontal drag
-        this.yv = Math.min(this.yv + GRAVITY, this.drag); //gravity
-
-        //speed limit
-        this.xv = Math.min(this.xv,10)
-        this.yv = Math.min(this.yv,10)
-
-        //antistuck
-        if(this.xv === 0){
-            this.xv = (Math.random() - 1 )/ 5;
-        }
-
-        this.x += this.xv;
-        this.y += this.yv;
-
-        this.collision();
-        // console.log("xv:" + this.xv +", yv:" + this.yv, this.y + this.elem.offsetHeight - floor.offsetTop)
-
-        //if below screen, remove
-        if (this.y > window.innerHeight){
-            this.elem.remove();
-            objs.splice(objs.indexOf(this), 1);
-        }
-    }
-
-    draw(){
-        this.elem.style.left = this.x + "px";
-        this.elem.style.top = this.y + "px";
-    }
-
-    collision(){
-        for (const wall of walls){
-            if(wall.collision(this)){
-                break;
-            }
-
-        }
-    }
-}
-
-
-class Wall{
-    constructor(x,y,w,h,elem) {
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-        this.elem = elem ?? document.createElement("div");
-        document.body.insertBefore(this.elem, document.getElementById("anchor"));
-        this.elem.classList = ["wall"]
-    }
-
-    update(){}
-    draw(){
-        this.elem.style.left = this.x + "px";
-        this.elem.style.top = this.y + "px";
-        this.elem.style.width = this.w + "px";
-        this.elem.style.height = this.h + "px";
-    }
-
-    collision(ball){
-
-        if(ball.y < this.y && ball.y + ball.elem.offsetHeight > this.y && ball.x < this.x + this.w && ball.x + ball.elem.offsetWidth > this.x){
-            ball.yv *= -ball.bounciness;
-            ball.y = this.y - ball.elem.offsetHeight;
-            return true
-        }
-        if(ball.x < this.x && ball.x + ball.elem.offsetWidth > this.x && ball.y < this.y + this.h && ball.y + ball.elem.offsetHeight > this.y){
-            ball.xv *= -ball.bounciness;
-            ball.x = this.x - ball.elem.offsetWidth;
-            return true
-        }
-
-        if(ball.x + ball.elem.offsetWidth > this.x + this.w && ball.x < this.x + this.w && ball.y < this.y + this.h && ball.y + ball.elem.offsetHeight > this.y){
-            ball.xv *= -ball.bounciness;
-            ball.x = this.x + this.w;
-            return true
-        }
-
-        if(ball.y + ball.elem.offsetHeight > this.y + this.h && ball.y < this.y + this.h && ball.x < this.x + this.w && ball.x + ball.elem.offsetWidth > this.x){
-            ball.yv *= -ball.bounciness;
-            ball.y = this.y + this.h;
-            return true
-        }
-        return false
-    }
-
-    break(){
-        if (!this.elem.classList.contains("explode")) {
-            const elem = this.elem; //dont remove xd
-            elem.classList.add("explode");
-            walls.splice(walls.indexOf(this), 1);
-
-            $('.explode').fadeOut(250, function () {
-                elem.remove();
-            });
-        }
-        checkWin();
-    }
-
-    remove(){
-        this.elem.remove();
-        walls.splice(walls.indexOf(this), 1);
-    }
-
-    repr(){
-        let mystr = this.constructor.name + "("
-        for (const attr of Object.keys(this)) {
-            if (this.hasOwnProperty(attr)) {
-                if(attr === "elem"){
-                    continue
-                }
-                mystr += attr + "=" + this[attr] + ","
-            }
-        }
-        mystr = mystr.slice(0,mystr.length-1) + ")";
-        mystr.replace('\"', '\\\\"') //escape strings
-        return mystr;
-    }
-
-    toJSON(){
-        return this.repr();
-    }
-
-}
-
-class Bounce extends Wall{
-    constructor(x, y, w, h, elem) {
-        super(x,y,w,h,elem);
-        this.elem.classList.add("bouncewall")
-    }
-
-    collision(ball){
-        if(super.collision(ball))
-        {
-            ball.xv *= 1.4
-            ball.yv *= 1.4
-            this.elem.classList.remove("bouncingwall")
-            void this.elem.offsetWidth
-            this.elem.classList.add("bouncingwall")
-            return true
-        }
-        return false
-    }
-}
-
-class Peg extends Wall {
-    constructor(x, y, w, h, score, elem) {
-        super(x, y, w, h, elem);
-        // if(score == null){
-        //     this.score = 100;
-        // }
-        // else{
-        //     this.score = score
-        // }
-
-        this.score = score ?? 100;
-        this.elem.classList.add("peg")
-        this.elem.style.width = this.w + "px";
-        this.elem.style.height = this.h + "px";
-    }
-
-    collision(ball) {
-        if (super.collision(ball)) {
-            this.break();
-            return true
-        }
-        return false
-    }
-
-    break() {
-        const scoretext = document.createElement("div");
-        scoretext.innerHTML = this.score;
-        scoretext.classList.add("scoretext");
-        scoretext.classList.add("float");
-
-        scoretext.style.left = this.x + "px";
-        scoretext.style.top = this.y - 50 + "px";
-        document.body.insertBefore(scoretext, document.getElementById("balltype"));
-
-        $('.scoretext').fadeOut(1000, function () {
-            scoretext.remove();
-        });
-
-        finalScore += this.score;
-        updateScore();
-        super.break();
-    }
-
-}
-
-class MovingPeg extends Peg{
-    constructor(x, y, w, h, score=200, xd=0, yd=0, xo=0,yo=0, elem=null) {
-        console.log(x,y,xd,yd)
-        super(x,y,w,h,score,elem);
-        console.log(this.x,this.y)
-
-        // this.x = x;
-        // this.y = y;
-        this.origX = x;
-        this.origY = y;
-        this.xd = xd;
-        this.yd = yd;
-        this.xo = xo;
-        this.yo = yo;
-        console.log(this)
-
-        this.elem.classList.add("movingpeg")
-
-    }
-
-    update(){
-        this.x = this.origX + Math.sin((performance.now() / 1000 + this.xo)) * this.xd;
-        this.y = this.origY + Math.cos((performance.now() / 1000 + this.yo)) * this.yd;
-    }
-
-    repr(){
-        let mystr = this.constructor.name + "(x=" + this.origX + ",y=" + this.origY + ","
-        for (const attr of Object.keys(this)) {
-            if (this.hasOwnProperty(attr)) {
-                if(["elem","x","y","origX","origY"].includes(attr)){
-                    continue
-                }
-                else{
-                    mystr += attr + "=" + this[attr] + ","
-                }
-            }
-        }
-        mystr = mystr.slice(0,mystr.length-1) + ")";
-        return mystr;
-    }
-
-    toJSON(){
-        return this.repr();
-    }
-
-}
-
-class FloorPeg extends Peg{
-    constructor(x, y, w, h, score=500, saveTimeMs = 5000,elem) {
-        super(x,y,w,h,score,elem);
-        this.saveTimeMs = Math.max(saveTimeMs, 1000);
-        this.elem.classList.add("floorpeg")
-    }
-
-    break() {
-        super.break();
-        let floor = new Wall(0, window.innerHeight-10, window.innerWidth, 10, document.createElement("div"));
-        floor.elem.style.backgroundColor = "#ffdd00";
-        walls.push(floor)
-
-        setTimeout(() => {
-            floor.elem.classList.add("blinking");
-        }, this.saveTimeMs - 1000);
-
-        setTimeout(() => {
-            floor.elem.remove();
-            walls.splice(walls.indexOf(floor), 1);
-        }, this.saveTimeMs);
-    }
-
-}
-
-class KeyPeg extends Peg{
-    constructor(x, y, w, h, score=500, targets, color, elem) {
-        super(x,y,w,h,score,elem);
-        this.elem.classList.add("keypeg")
-        this.targets = targets
-        this.color = JSON.stringify(color)
-        if(color !== null){
-            if(targets == null){return}
-            for (const target of this.targets) {
-                this.elem.style.borderColor = color;
-                target.elem.style.borderColor = color;
-            }
-        }
-    }
-
-    break(){
-        super.break();
-        for (const target of this.targets) {
-            target.break();
-        }
-    }
-
-    repr(){
-        let mystr = this.constructor.name + "("
-        for (const attr of Object.keys(this)) {
-            if (this.hasOwnProperty(attr)) {
-                if(["elem"].includes(attr)){
-                    continue
-                }
-                else if(attr === "targets"){
-                    mystr += attr + "= [";
-                    if (this[attr] == null){
-                        mystr += "]";
-                    }
-                    else{
-                        for (const target of this.targets) {
-                            mystr += "walls[" + walls.indexOf(target) + "],"
-                        }
-                    }
-                    mystr = mystr.slice(0,mystr.length-1) + "],";
-                }
-                else{
-                    mystr += attr + "=" + this[attr] + ","
-                }
-            }
-        }
-        mystr = mystr.slice(0,mystr.length-1) + ")";
-        mystr.replace('\"', '\\\\"') //escape strings
-        return mystr;
-    }
-
-    toJSON(){
-        return this.repr();
-    }
-}
-
-class MultiBall extends Peg{
-    constructor(x, y, w, h, score=500, ballAmount=3, elem) {
-        super(x,y,w,h,score,elem);
-        this.ballAmount = ballAmount
-        this.elem.classList = ["multiball"];
-    }
-
-    break(){
-        for (let i = 0; i < this.ballAmount; i++) {
-            const ball = document.createElement("div")
-            const ballobj = new balltypes[BALLTYPE](ball,this.x,this.y)
-            ballobj.xv = Math.random() * 6 - 5;
-            ballobj.yv = Math.random() * 6 - 5;
-        }
-        super.break();
-    }
-}
 
 window.onmousedown = function(event) {
     document.getElementById("tutorial").style.visibility = "hidden"
@@ -374,7 +21,11 @@ window.onmousedown = function(event) {
         dragging = true;
         if (true) {
             let x = event.clientX;
-            let y = event.clientY
+            let y = event.clientY;
+            if(gridsnap){
+                x = Math.round(x/10)*10;
+                y = Math.round(y/10)*10;
+            }
             const wt = walltypes.get(WALLTYPE);
             let w = editoroptions.get("w");
             let h = editoroptions.get("h");
@@ -446,14 +97,25 @@ window.onmousemove = function(event) {
 
     coords.innerText = "X: " + event.clientX + ", Y: "+ event.clientY
     if (dragging) {
-        const xd = Math.abs(event.clientX - startpos.clientX)
-        const yd = Math.abs(event.clientY - startpos.clientY);
+        let xd = Math.abs(event.clientX - startpos.clientX)
+        let yd = Math.abs(event.clientY - startpos.clientY);
         if(xd > moveTreshold || yd > moveTreshold){
             if(walls.length>0){
                 const wall = walls[walls.length-1]
 
-                wall.x = Math.min(startpos.x, event.clientX);
-                wall.y = Math.min(startpos.y, event.clientY);
+                let x = Math.min(startpos.x, event.clientX);
+                let y = Math.min(startpos.y, event.clientY);
+
+                if(gridsnap){
+                    x = Math.round(x/10)*10;
+                    y = Math.round(y/10)*10;
+                    xd = Math.round(xd/10)*10;
+                    yd = Math.round(yd/10)*10;
+
+                }
+
+                wall.x = x;
+                wall.y = y;
 
                 wall.w = xd
                 wall.h = yd
@@ -467,17 +129,6 @@ window.onmousemove = function(event) {
 
 }
 
-function checkWin(){
-
-}
-
-function facing(elem,x=0,y=0,offset=0){
-    const ex = parseInt(window.getComputedStyle(elem).left)
-    const ey = parseInt(window.getComputedStyle(elem).top)
-    // elem.style.height = Math.min(100,Math.sqrt(Math.pow(parseInt(elem.style.top)-y,2) + Math.pow(parseInt(elem.style.left) - x,2))) + "px";
-    elem.style.height = "100px"
-    elem.style.rotate = Math.atan2(ey - y, ex - x) * 180 / Math.PI + offset + "deg"
-}
 function resetLevel() {
     walls.map(elem=>{
         elem.elem.remove();
@@ -489,8 +140,25 @@ document.getElementById("reset").addEventListener("click", function(event) {
     resetLevel();
 })
 
+
+gridsnapbutton.addEventListener("click", function(event) {
+    gridsnap = !gridsnap;
+    gridsnapbutton.style.backgroundColor = gridsnap? "#aaeeaa":"#eeaaaa"
+    console.log(gridsnap)
+})
+
 document.getElementById("walltype").addEventListener("change", function(event) {
     WALLTYPE = event.target.value;
+    if(WALLTYPE==="keypeg"){
+        for (const wall of walls) {
+            wall.elem.innerHTML = walls.indexOf(wall);
+        }
+    }
+    else{
+        for (const wall of walls) {
+            wall.elem.innerHTML = "";
+        }
+    }
 })
 
 document.getElementById("pause").onclick = function (event) {
@@ -520,7 +188,6 @@ document.getElementById("editoroptions").addEventListener("click", function (eve
         input.placeholder = editorhelp.get(attr) ?? ""
         input.onchange = function (event){
             editoroptions.set(attr, event.target.value)
-            console.log(editoroptions)
         }
         modal.appendChild(input)
 
@@ -585,3 +252,7 @@ setInterval(main,5);
 //TODO edit
 //TODO move (same thing ig)
 //TODO delete
+//DONE show wall indeces on walls when KeyPeg is selected
+//TODO selection options: select all, select all that are selected from dropdown, selection boolean operations
+//DONE snapping to grid?
+//TODO better keypeg target input - maybe use selected

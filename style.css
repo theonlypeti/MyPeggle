@@ -46,9 +46,6 @@ span{
     user-select: none;
 }
 
-input{
-    /*user-select: none;*/
-}
 
 .squish{
     animation: squish 0.05s ease-in 0s 1 normal;
@@ -150,6 +147,7 @@ input{
     background-color: #777766;
     border-radius: 0;
     border: 1px solid #555544;
+    text-align: center;
 }
 
 @keyframes wallbounce {
@@ -170,7 +168,7 @@ input{
 .bouncewall{
     position: absolute;
     background-color: #974caf;
-
+    text-align: center;
 }
 
 #tutorial{
@@ -186,6 +184,7 @@ input{
     background-color: cornflowerblue;
     /*border-radius: 50%;*/
     border: 2px solid dodgerblue;
+    text-align: center;
 }
 
 .multiball{
@@ -198,6 +197,7 @@ input{
     background-size: contain;
     background-repeat: no-repeat;
     background-color: #b65767;
+    text-align: center;
 
 }
 
@@ -214,6 +214,7 @@ input{
     background-size: contain;
     background-repeat: no-repeat;
     background-color: #cbcb35;
+    text-align: center;
 }
 
 .keypeg{
@@ -226,6 +227,7 @@ input{
     background-repeat: no-repeat;
     background-color: #88aaff;
     border: 2px solid #2289e5;
+    text-align: center;
 }
 
 body{
