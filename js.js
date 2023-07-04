@@ -14,6 +14,7 @@ let timer = document.getElementById("timer");
 let milis = null;
 let finalScore = 0;
 let scoreElem = document.getElementById("score");
+const editormode = "play";
 
 
 
@@ -49,42 +50,20 @@ const balltypes = {
     "wall": Wall
 }
 
-
-let startpos = 0;
-window.onmousedown = function(event) {
+window.onmouseup = function(event) {
     document.getElementById("tutorial").style.display = "none";
-    if(event.clientY > 30){
-        if(time==null){
+    if (event.clientY > 30) {
+        if (time == null) {
             time = performance.mark("start");
         }
-        startpos = event
-        dragging = true;
-        if(BALLTYPE === "wall"){
-            const wall = document.createElement("div")
-            wall.className = "wall"
-            let x = event.clientX; let y = event.clientY
-            wallobj = new balltypes[BALLTYPE](x,y,0,0,wall)
-            walls.push(wallobj);
-            document.body.insertBefore(wall,  document.getElementById("anchor"))
-        }
-        else{
-            // startarrow(event)
-        }
-    }
-}
 
-window.onmouseup = function(event) {
-    if(!dragging){return}
-    if(BALLTYPE === "wall"){
-    }
-    else {
         const arrow = document.getElementById("arrow")
         const rot = parseInt(window.getComputedStyle(arrow).rotate)
         // console.log(rot)
         const anglerad = rot * Math.PI / 180;
         // console.log(anglerad)
         //velocities
-        const xv = - Math.sin(anglerad);
+        const xv = -Math.sin(anglerad);
         // const yv = Math.cos(anglerad) * 4;
         const v = 1;
         const yv = Math.sqrt(v * v - xv * xv);
@@ -93,7 +72,6 @@ window.onmouseup = function(event) {
         // const v = Math.sqrt(xv * xv + yv * yv);
         //make ball elem
         const ball = document.createElement("div");
-
 
         //make ball obj
         const ballobj = new balltypes[BALLTYPE](ball)
@@ -109,8 +87,6 @@ window.onmouseup = function(event) {
         ballsused++;
         document.getElementById("ballcounter").innerHTML = ballsused;
     }
-    dragging = false;
-
 }
 function startarrow(event){
     const arrow = document.createElement("div")
@@ -119,6 +95,11 @@ function startarrow(event){
     //middle of the screen
     arrow.style.left = window.innerWidth/2 + "px";
     arrow.style.top = 0;
+}
+
+function handleSelection(elems){
+    //not used
+    console.log(elems)
 }
 
 // ball = new Ball(document.getElementById("ball"))
@@ -262,7 +243,7 @@ updateScore();
 setInterval(main,5);
 
 //TODO ghost blocks to toggle?
-//TODO slime block to reduce speed?
+//DONE slime block to reduce speed?
 //TODO bomb ball?
 //TODO glass blocks to shatter?
 //TODO somehow limit num of balls that fits gameplay style

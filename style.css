@@ -47,24 +47,10 @@ span{
 }
 
 
-.squish{
-    animation: squish 0.05s ease-in 0s 1 normal;
-}
-
-@keyframes squish {
-    0% {
-        transform: scaleY(1);
-    }
-    50% {
-        transform: scaleY(0.8);
-    }
-    100% {
-        transform: scaleY(1);
-    }
-}
-
 :root{
     --rot: 50deg;
+    --bouncesize: 120%;
+    --borderradiussize: 50%;
 }
 
 @keyframes explode {
@@ -156,7 +142,7 @@ span{
     }
     50% {
         border-radius: 50%;
-        scale: 150%;
+        transform: scale(var(--bouncesize));
     }
 
 }
@@ -168,6 +154,12 @@ span{
 .bouncewall{
     position: absolute;
     background-color: #974caf;
+    text-align: center;
+}
+
+.slimewall{
+    position: absolute;
+    background-color: #5eaf4c;
     text-align: center;
 }
 
@@ -239,4 +231,8 @@ body{
     background-position: center;
     background-attachment: fixed;
     overflow: hidden;
+}
+
+.selected{
+    border: 3px dashed #cbcb35;
 }

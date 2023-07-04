@@ -10,6 +10,9 @@ let paused = true;
 let gridsnapbutton = document.getElementById("gridsnap");
 gridsnapbutton.style.backgroundColor = "#eeaaaa"
 let gridsnap = false;
+const editormodes = ["Build","Select"]
+let editormode = "Build"
+let selectedWalls = [];
 // let WALLTYPE = "wall";
 
 window.onmousedown = function(event) {
@@ -19,7 +22,7 @@ window.onmousedown = function(event) {
     if (event.clientY > 60) {
         startpos = event
         dragging = true;
-        if (true) {
+        if (editormode==="Build") {
             let x = event.clientX;
             let y = event.clientY;
             if(gridsnap){
@@ -49,13 +52,11 @@ window.onmousedown = function(event) {
                     let opt = editoroptions.get(key)
                     if (opt != null){
                         wallobj[key] = opt;
-                        console.log("setting", key)
                     }
                 }
             }
             // wallobj = new wt(x,y,0,0)
             walls.push(wallobj);
-            console.log(walls)
         } else {
             // startarrow(event)
         }
@@ -84,6 +85,11 @@ function main(){
     for (const obj of walls){
         if(!paused){
             obj.update();
+        }else{
+            walls.filter(wall=>{return wall instanceof MovingPeg}).map(wall=>{
+                wall.x = wall.origX;
+                wall.y = wall.origY;
+            })
         }
         obj.draw();
     }
@@ -99,27 +105,29 @@ window.onmousemove = function(event) {
     if (dragging) {
         let xd = Math.abs(event.clientX - startpos.clientX)
         let yd = Math.abs(event.clientY - startpos.clientY);
-        if(xd > moveTreshold || yd > moveTreshold){
-            if(walls.length>0){
-                const wall = walls[walls.length-1]
+        if(editormode==="Build"){
+            if(xd > moveTreshold || yd > moveTreshold){
+                if(walls.length>0){
+                    const wall = walls[walls.length-1]
 
-                let x = Math.min(startpos.x, event.clientX);
-                let y = Math.min(startpos.y, event.clientY);
+                    let x = Math.min(startpos.x, event.clientX);
+                    let y = Math.min(startpos.y, event.clientY);
 
-                if(gridsnap){
-                    x = Math.round(x/10)*10;
-                    y = Math.round(y/10)*10;
-                    xd = Math.round(xd/10)*10;
-                    yd = Math.round(yd/10)*10;
+                    if(gridsnap){
+                        x = Math.round(x/10)*10;
+                        y = Math.round(y/10)*10;
+                        xd = Math.round(xd/10)*10;
+                        yd = Math.round(yd/10)*10;
+
+                    }
+
+                    wall.x = x;
+                    wall.y = y;
+
+                    wall.w = xd
+                    wall.h = yd
 
                 }
-
-                wall.x = x;
-                wall.y = y;
-
-                wall.w = xd
-                wall.h = yd
-
             }
         }
     }
@@ -140,11 +148,23 @@ document.getElementById("reset").addEventListener("click", function(event) {
     resetLevel();
 })
 
+function cycle(variable, collection) {
+    return collection[(collection.indexOf(variable)+1) % collection.length];
+}
+
+document.getElementById("editormode").addEventListener("click",function(event){
+    editormode = cycle(editormode, editormodes);
+    document.getElementById("editormode").innerText = editormode;
+    if (editormode !== "edit"){
+        handleSelection([]);
+    }
+
+})
+
 
 gridsnapbutton.addEventListener("click", function(event) {
     gridsnap = !gridsnap;
     gridsnapbutton.style.backgroundColor = gridsnap? "#aaeeaa":"#eeaaaa"
-    console.log(gridsnap)
 })
 
 document.getElementById("walltype").addEventListener("change", function(event) {
@@ -174,24 +194,50 @@ modal.onclose = function (event){
 }
 document.getElementById("editoroptions").addEventListener("click", function (event){
 
-    let wt = walltypes.get(WALLTYPE)
-    for (const attr of Object.keys(new wt())) {
-        if (forbidden_attrs.includes(attr)){
-            continue;
+    if(editormode === "Build"){
+        let wt = walltypes.get(WALLTYPE)
+        for (const attr of Object.keys(new wt())) {
+            if (forbidden_attrs.includes(attr)){
+                continue;
+            }
+            let elem = document.createElement("div")
+            elem.innerHTML = attr;
+            modal.appendChild(elem)
+            let input = document.createElement("input");
+            input.type = "text";
+            input.value = editoroptions.get(attr) ?? ""
+            input.placeholder = editorhelp.get(attr) ?? ""
+            input.onchange = function (event){
+                editoroptions.set(attr, event.target.value)
+            }
+            modal.appendChild(input)
         }
-        let elem = document.createElement("div")
-        elem.innerHTML = attr;
-        modal.appendChild(elem)
-        let input = document.createElement("input");
-        input.type = "text";
-        input.value = editoroptions.get(attr) ?? ""
-        input.placeholder = editorhelp.get(attr) ?? ""
-        input.onchange = function (event){
-            editoroptions.set(attr, event.target.value)
+    }else if(editormode === "Select"){
+        if(selectedWalls.length>0){
+            let wt = selectedWalls[0];
+            for (const attr of Object.keys(wt)) { //TODO ponder about whether to include x,y ; cuz of movingpeg+ no just make a move mode
+                if (forbidden_attrs.includes(attr)){
+                    continue;
+                }
+                console.log(attr)
+                let elem = document.createElement("div")
+                elem.innerHTML = attr;
+                modal.appendChild(elem)
+                let input = document.createElement("input");
+                input.type = "text";
+                input.value = wt[attr] ?? ""
+                input.placeholder = editorhelp.get(attr) ?? ""
+                input.onchange = function (event){
+                    wt[attr]=event.target.value
+                }
+                modal.appendChild(input)
+            }
         }
-        modal.appendChild(input)
 
     }
+
+
+
     let closebt = document.createElement("button")
     closebt.innerText = "OK";
     closebt.onclick = function (event){
@@ -208,7 +254,7 @@ document.getElementById("editoroptions").addEventListener("click", function (eve
 
 addEventListener("selectstart", event => event.preventDefault());
 
-let classes = [Wall,Peg,KeyPeg,FloorPeg,MovingPeg,MultiBall,Bounce];
+let classes = [Wall,Peg,KeyPeg,FloorPeg,MovingPeg,MultiBall,Bounce,SlimeWall];
 let wt = document.getElementById("walltype")
 const walltypes =  new Map(classes.map( item => [new item().constructor.name.toLowerCase(), item]));
 // walls = [];
@@ -226,6 +272,16 @@ function exportLevel(){
     localStorage.setItem("peggle.mylevel",exportstring);
     return exportstring;
 
+}
+
+function handleSelection(elems){
+    for (const elem of selectedWalls) {
+        elem.elem.classList.remove("selected")
+    }
+    selectedWalls = elems;
+    for (const elem of selectedWalls) {
+        elem.elem.classList.add("selected")
+    }
 }
 
 function importLevel(){
@@ -249,7 +305,7 @@ walls.push(new Wall(0,-10,window.innerWidth,12)); //top
 console.log(walls);
 setInterval(main,5);
 
-//TODO edit
+//DONE edit
 //TODO move (same thing ig)
 //TODO delete
 //DONE show wall indeces on walls when KeyPeg is selected

@@ -1,18 +1,20 @@
+let anchor = document.getElementById("anchor");
+
 class Ball{
     constructor(elem,x=window.innerWidth/2,y=0){
-        this.elem = elem;
-        this.elem.style.left = x;
-        this.elem.style.top = y;
         this.x = x
         this.y = y
         this.xv = 0;
         this.yv = 0;
+        this.elem = elem ?? document.createElement("div");
+        this.elem.style.left = x;
+        this.elem.style.top = y;
         // this.bounciness = BOUNCINESS;
         this.drag = DRAG;
         // this.hdrag = HDRAG;
         this.elem.className = "ball"
         objs.push(this);
-        document.body.insertBefore(this.elem, document.getElementById("anchor"));
+        document.body.insertBefore(this.elem, anchor);
     }
 
     update(){
@@ -27,6 +29,8 @@ class Ball{
         if(this.xv === 0){
             this.xv = (Math.random() - 1 )/ 5;
         }
+
+        this.av = Math.abs(this.xv) + Math.abs(this.yv);
 
         this.x += this.xv;
         this.y += this.yv;
@@ -111,7 +115,7 @@ class Glass extends Ball{
             shard.style.left = this.x + (Math.random()-0.5) * 20 * Math.min(this.xv,2) * -Math.min(this.yv,2) + "px";
             shard.style.top = floor.offsetTop + (Math.random()-0.5)*5 - 10 + "px";
             shard.style.transform = "rotate(" + Math.random() * 360 + "deg)";
-            document.body.insertBefore(shard, floor)
+            document.body.insertBefore(shard, anchor)
             var rot = Math.random() * 360;
             shard.style.setProperty('--rot', rot +'deg');
             $('.shard').fadeOut(5000, function() {
@@ -139,7 +143,12 @@ class Wall{
         this.h = h;
         this.elem = elem ?? document.createElement("div");
         this.elem.classList = ["wall"]
-        document.body.insertBefore(this.elem, document.getElementById("anchor"));
+        document.body.insertBefore(this.elem, anchor);
+        this.elem.addEventListener("mousedown",(event)=>{
+            if(editormode === "Select"){
+                handleSelection([this]);
+            }
+        })
     }
 
     remove(){
@@ -218,6 +227,7 @@ class Wall{
 class Bounce extends Wall{
     constructor(x, y, w, h, elem) {
         super(x,y,w,h,elem);
+        this.bounciness = Math.max(160 - this.w/9 - this.h/9, 110)
         this.elem.classList.add("bouncewall")
     }
 
@@ -228,7 +238,13 @@ class Bounce extends Wall{
             ball.yv *= 1.4
             this.elem.classList.remove("bouncingwall")
             void this.elem.offsetWidth
+            // this.elem.style.setProperty('--bouncesize', bounciness +'%');
             this.elem.classList.add("bouncingwall")
+            document.documentElement.style.setProperty('--bouncesize', this.bounciness +'%');
+            // console.log(this.elem.style.getPropertyValue("--bouncesize"))
+            document.documentElement.style.setProperty('--borderradiussize', this.bounciness-100 +'%');
+            // this.elem.style.setProperty('--borderradiussize', bounciness-250 +'%');
+            // this.elem.style.setProperty('--borderradiussize',0 +'%'); //TODO revisit
             return true
         }
         return false
@@ -261,7 +277,7 @@ class Peg extends Wall{
 
         scoretext.style.left = this.x + "px";
         scoretext.style.top = this.y - 50 + "px";
-        document.body.insertBefore(scoretext, document.getElementById("balltype"));
+        document.body.insertBefore(scoretext, anchor);
 
         $('.scoretext').fadeOut(1000, function () {
             scoretext.remove();
@@ -302,7 +318,7 @@ class MovingPeg extends Peg{
                     continue
                 }
                 else{
-                    if(this[attr]==true){
+                    if(this[attr]!==""){
                         mystr += attr + "=" + this[attr] + ","
                     }
                 }
@@ -421,5 +437,27 @@ class MultiBall extends Peg{
             ballobj.yv = Math.random() * 6 - 3;
         }
         super.break();
+    }
+}
+
+class SlimeWall extends Wall{
+    constructor(x, y, w, h, elem) {
+        super(x,y,w,h,elem);
+        this.elem.classList.add("slimewall")
+    }
+
+    collision(ball){
+        if(super.collision(ball))
+        {
+            ball.xv *= 0.4
+            ball.yv *= 0.4
+            if(ball.av > 1){
+                this.elem.classList.remove("bouncingwall")
+                void this.elem.offsetWidth
+                this.elem.classList.add("bouncingwall")
+            }
+            return true
+        }
+        return false
     }
 }
