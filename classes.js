@@ -50,6 +50,11 @@ class Ball{
         this.elem.style.top = this.y + "px";
     }
 
+    remove(){
+        this.elem.remove();
+        objs.splice(objs.indexOf(this), 1);
+    }
+
     collision(){
         for (const wall of walls){
             if(wall.collision(this)){
@@ -146,7 +151,7 @@ class Wall{
         document.body.insertBefore(this.elem, anchor);
         this.elem.addEventListener("mousedown",(event)=>{
             if(editormode === "Select"){
-                handleSelection([this]);
+                handleSelection([this], event);
             }
         })
     }
@@ -227,22 +232,23 @@ class Wall{
 class Bounce extends Wall{
     constructor(x, y, w, h, elem) {
         super(x,y,w,h,elem);
-        this.bounciness = Math.max(160 - this.w/9 - this.h/9, 110)
+        // this.bounciness = Math.max(160 - this.w/9 - this.h/9, 110)
         this.elem.classList.add("bouncewall")
     }
 
     collision(ball){
         if(super.collision(ball))
         {
+            const bounciness = 110;
             ball.xv *= 1.4
             ball.yv *= 1.4
             this.elem.classList.remove("bouncingwall")
             void this.elem.offsetWidth
             // this.elem.style.setProperty('--bouncesize', bounciness +'%');
             this.elem.classList.add("bouncingwall")
-            document.documentElement.style.setProperty('--bouncesize', this.bounciness +'%');
+            document.documentElement.style.setProperty('--bouncesize', bounciness +'%');
             // console.log(this.elem.style.getPropertyValue("--bouncesize"))
-            document.documentElement.style.setProperty('--borderradiussize', this.bounciness-100 +'%');
+            document.documentElement.style.setProperty('--borderradiussize', bounciness-100 +'%');
             // this.elem.style.setProperty('--borderradiussize', bounciness-250 +'%');
             // this.elem.style.setProperty('--borderradiussize',0 +'%'); //TODO revisit
             return true
@@ -361,15 +367,18 @@ class FloorPeg extends Peg{
 
 class KeyPeg extends Peg{
     constructor(x, y, w, h, score=500, targets, color, elem) {
+        console.log(targets)
         super(x,y,w,h,score,elem);
         this.elem.classList.add("keypeg")
         this.targets = targets
         this.color = color;
-        if(color !== null){
+        if(color !== null && color !== "undefined"){
             this.elem.style.borderColor = color;
             if(targets == null){return}
             for (const target of this.targets) {
-                target.elem.style.borderColor = color;
+                if(target.elem != null) {
+                    target.elem.style.borderColor = color;
+                }
             }
         }
     }
@@ -390,7 +399,7 @@ class KeyPeg extends Peg{
                 }
                 else if(attr === "targets"){
                     mystr += attr + "= [";
-                    if (this[attr] == null){
+                    if (this[attr] == null || this[attr] == 0){
                         mystr += "]";
                     }
                     else{
@@ -459,5 +468,11 @@ class SlimeWall extends Wall{
             return true
         }
         return false
+    }
+}
+
+class BoundaryWall extends Wall{
+    constructor(x, y, w, h, elem) {
+        super(x,y,w,h,elem);
     }
 }

@@ -184,11 +184,11 @@ span{
 
     /*border-radius: 50%;*/
     border: 2px solid #720841;
-    background: url("img/split.png");
-    background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
-    background-color: #b65767;
+    background-position: center;
+    background-image: url("img/split.png");
+    background-color: #b65767; /*does not work in oneline*/
     text-align: center;
 
 }
@@ -201,11 +201,11 @@ span{
     position: absolute;
     /*border-radius: 50%;*/
     border: 2px solid #94945e;
-    background: url("img/angel_save.png");
-    background-position: center;
+    background: url("img/angel_save.png"); /*does not work in oneline*/
     background-size: contain;
-    background-repeat: no-repeat;
     background-color: #cbcb35;
+    background-repeat: no-repeat;
+    background-position: center;
     text-align: center;
 }
 
@@ -213,17 +213,17 @@ span{
     position: absolute;
     /*background-color: #a34cf5;*/
     /*border-radius: 50%;*/
-    background: url("img/key.png");
-    background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
+    background-position: center;
+    background-image: url("img/key.png");
     background-color: #88aaff;
     border: 2px solid #2289e5;
     text-align: center;
 }
 
 body{
-    background-image: url("/img/bg.jpg");
+    background-image: url("img/bg.jpg");
     background-color: #666666;
     background-blend-mode: multiply;
     background-size: cover;
@@ -235,4 +235,9 @@ body{
 
 .selected{
     border: 3px dashed #cbcb35;
+}
+
+.ghostwall{
+    position: absolute;
+    border: 4px dashed #c0c093;
 }
