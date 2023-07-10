@@ -101,11 +101,6 @@ function handleSelection(elems, event){
     //not used
 }
 
-// ball = new Ball(document.getElementById("ball"))
-// const ball = document.createElement("div")
-// ball.className = "ball"
-//
-// objs.push(new Ball(ball))
 function main(){
     if(time==null){
         milis ??= 0;
@@ -200,9 +195,8 @@ function exportLevel(){
 
 }
 
-function importLevel(){
-    let level = null;
-    level = localStorage.getItem("peggle.mylevel");
+function importLevel(level){
+    level ??= localStorage.getItem("peggle.mylevel");
     level ??= "[\"Bounce(x=115.2,y=500,w=30,h=20)\",\"Peg(x=57.6,y=400,w=30,h=20,score=100)\",\"Peg(x=115.2,y=300,w=30,h=20,score=100)\",\"Bounce(x=230.4,y=500,w=30,h=20)\",\"Peg(x=172.8,y=400,w=30,h=20,score=100)\",\"Peg(x=230.4,y=300,w=30,h=20,score=100)\",\"Bounce(x=345.6,y=500,w=30,h=20)\",\"Peg(x=288,y=400,w=30,h=20,score=100)\",\"Peg(x=345.6,y=300,w=30,h=20,score=100)\",\"Bounce(x=460.8,y=500,w=30,h=20)\",\"Peg(x=403.20000000000005,y=400,w=30,h=20,score=100)\",\"Peg(x=460.8,y=300,w=30,h=20,score=100)\",\"Bounce(x=576,y=500,w=30,h=20)\",\"Peg(x=518.4,y=400,w=30,h=20,score=100)\",\"Peg(x=576,y=300,w=30,h=20,score=100)\",\"Bounce(x=691.2,y=500,w=30,h=20)\",\"Peg(x=633.6,y=400,w=30,h=20,score=100)\",\"Peg(x=691.2,y=300,w=30,h=20,score=100)\",\"Bounce(x=806.4000000000001,y=500,w=30,h=20)\",\"Peg(x=748.8000000000001,y=400,w=30,h=20,score=100)\",\"Peg(x=806.4000000000001,y=300,w=30,h=20,score=100)\",\"Bounce(x=921.6,y=500,w=30,h=20)\",\"Peg(x=864,y=400,w=30,h=20,score=100)\",\"Peg(x=921.6,y=300,w=30,h=20,score=100)\",\"Bounce(x=1036.8,y=500,w=30,h=20)\",\"Peg(x=979.2,y=400,w=30,h=20,score=100)\",\"Peg(x=1036.8,y=300,w=30,h=20,score=100)\",\"Bounce(x=1152,y=500,w=30,h=20)\",\"Peg(x=1094.3999999999999,y=400,w=30,h=20,score=100)\",\"Peg(x=1152,y=300,w=30,h=20,score=100)\",\"Bounce(x=1267.2,y=500,w=30,h=20)\",\"Peg(x=1209.6,y=400,w=30,h=20,score=100)\",\"Peg(x=1267.2,y=300,w=30,h=20,score=100)\",\"Bounce(x=1382.4,y=500,w=30,h=20)\",\"Peg(x=1324.8,y=400,w=30,h=20,score=100)\",\"Peg(x=1382.4,y=300,w=30,h=20,score=100)\",\"Bounce(x=1497.6000000000001,y=500,w=30,h=20)\",\"Peg(x=1440,y=400,w=30,h=20,score=100)\",\"Peg(x=1497.6000000000001,y=300,w=30,h=20,score=100)\",\"Bounce(x=1612.8000000000002,y=500,w=30,h=20)\",\"Peg(x=1555.2,y=400,w=30,h=20,score=100)\",\"Peg(x=1612.8000000000002,y=300,w=30,h=20,score=100)\",\"Bounce(x=1728,y=500,w=30,h=20)\",\"Peg(x=1670.3999999999999,y=400,w=30,h=20,score=100)\",\"Peg(x=1728,y=300,w=30,h=20,score=100)\",\"MovingPeg(x=460.8,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=0,yo=0)\",\"MovingPeg(x=576,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=42.35294117647059,yo=24)\",\"MovingPeg(x=691.2,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=84.70588235294117,yo=48)\",\"MovingPeg(x=806.4000000000001,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=127.05882352941177,yo=72)\",\"MovingPeg(x=921.6,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=169.41176470588235,yo=96)\",\"MovingPeg(x=1036.8,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=211.76470588235293,yo=120)\",\"MovingPeg(x=1152,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=254.11764705882354,yo=144)\",\"MovingPeg(x=1267.2,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=296.4705882352941,yo=168)\",\"MultiBall(x=500,y=250,w=30,h=20,score=500,ballAmount=3)\",\"FloorPeg(x=500,y=100,w=30,h=20,score=500,saveTimeMs=5000)\",\"Wall(x=1000,y=550,w=100,h=20)\",\"Wall(x=890,y=550,w=100,h=20)\",\"Wall(x=1110,y=550,w=100,h=20)\",\"Bounce(x=800,y=550,w=70,h=20)\",\"KeyPeg(x=1000,y=150,w=30,h=20,score=500,targets= [walls[55],walls[56],walls[57]],color='#40ff00')\",\"FloorPeg(x=1040,y=580,w=30,h=20,score=500,saveTimeMs=5000)\",\"BoundaryWall(x=-100,y=0,w=102,h=937)\",\"BoundaryWall(x=1918,y=0,w=100,h=937)\",\"BoundaryWall(x=0,y=-10,w=1920,h=12)\"]"
     resetLevel();
     level = JSON.parse(level);
@@ -215,30 +209,31 @@ function importLevel(){
 
 }
 
-// generatePegs()
-// walls.push(new MultiBall(500,250,30,20));
-// walls.push(new FloorPeg(500,100,30,20));
-// key1wall = new Wall(1000,550,100,20)
-// key1wall2 = new Wall(890,550,100,20)
-// key1wall3 = new Wall(1110,550,100,20)
-// walls.push(key1wall);
-// walls.push(key1wall2);
-// walls.push(key1wall3);
-// walls.push(new Bounce(800,550,70,20))
-// // walls.push(new KeyPeg(1000,150,30,20,[key1wall,key1wall2,key1wall3]));
-// walls.push(new KeyPeg(1000,150,30,20,undefined,[key1wall,key1wall2,key1wall3],"#40ff00"));
-// walls.push(new FloorPeg(1040,580,30,20));
+generatePegs()
+walls.push(new MultiBall(500,250,30,20));
+walls.push(new FloorPeg(500,100,30,20));
+key1wall = new Wall(1000,550,100,20)
+key1wall2 = new Wall(890,550,100,20)
+key1wall3 = new Wall(1110,550,100,20)
+walls.push(key1wall);
+walls.push(key1wall2);
+walls.push(key1wall3);
+walls.push(new Bounce(800,550,70,20))
+// walls.push(new KeyPeg(1000,150,30,20,[key1wall,key1wall2,key1wall3]));
+walls.push(new KeyPeg(1000,150,30,20,undefined,[key1wall,key1wall2,key1wall3],"#40ff00"));
+walls.push(new FloorPeg(990,580,30,20));
 
-// walls.push(new BoundaryWall(x=-100,y=0,w=102,h=window.innerHeight)); //left
-// walls.push(new BoundaryWall(window.innerWidth-2,0,100,window.innerHeight)); //right
-// // walls.push(new Wall(0,window.innerHeight-10,window.innerWidth,10)); //bottom
-// walls.push(new BoundaryWall(0,-10,window.innerWidth,12)); //top
+walls.push(new BoundaryWall(x=-100,y=0,w=102,h=window.innerHeight)); //left
+walls.push(new BoundaryWall(window.innerWidth-2,0,100,window.innerHeight)); //right
+// walls.push(new Wall(0,window.innerHeight-10,window.innerWidth,10)); //bottom
+walls.push(new BoundaryWall(0,-10,window.innerWidth,12)); //top
 
-importLevel();
+// importLevel("[\"Bounce(x=115.2,y=500,w=30,h=20)\",\"Peg(x=57.6,y=400,w=30,h=20,score=100)\",\"Peg(x=115.2,y=300,w=30,h=20,score=100)\",\"Bounce(x=230.4,y=500,w=30,h=20)\",\"Peg(x=172.8,y=400,w=30,h=20,score=100)\",\"Peg(x=230.4,y=300,w=30,h=20,score=100)\",\"Bounce(x=345.6,y=500,w=30,h=20)\",\"Peg(x=288,y=400,w=30,h=20,score=100)\",\"Peg(x=345.6,y=300,w=30,h=20,score=100)\",\"Bounce(x=460.8,y=500,w=30,h=20)\",\"Peg(x=403.20000000000005,y=400,w=30,h=20,score=100)\",\"Peg(x=460.8,y=300,w=30,h=20,score=100)\",\"Bounce(x=576,y=500,w=30,h=20)\",\"Peg(x=518.4,y=400,w=30,h=20,score=100)\",\"Peg(x=576,y=300,w=30,h=20,score=100)\",\"Bounce(x=691.2,y=500,w=30,h=20)\",\"Peg(x=633.6,y=400,w=30,h=20,score=100)\",\"Peg(x=691.2,y=300,w=30,h=20,score=100)\",\"Bounce(x=806.4000000000001,y=500,w=30,h=20)\",\"Peg(x=748.8000000000001,y=400,w=30,h=20,score=100)\",\"Peg(x=806.4000000000001,y=300,w=30,h=20,score=100)\",\"Bounce(x=921.6,y=500,w=30,h=20)\",\"Peg(x=864,y=400,w=30,h=20,score=100)\",\"Peg(x=921.6,y=300,w=30,h=20,score=100)\",\"Bounce(x=1036.8,y=500,w=30,h=20)\",\"Peg(x=979.2,y=400,w=30,h=20,score=100)\",\"Peg(x=1036.8,y=300,w=30,h=20,score=100)\",\"Bounce(x=1152,y=500,w=30,h=20)\",\"Peg(x=1094.3999999999999,y=400,w=30,h=20,score=100)\",\"Peg(x=1152,y=300,w=30,h=20,score=100)\",\"Bounce(x=1267.2,y=500,w=30,h=20)\",\"Peg(x=1209.6,y=400,w=30,h=20,score=100)\",\"Peg(x=1267.2,y=300,w=30,h=20,score=100)\",\"Bounce(x=1382.4,y=500,w=30,h=20)\",\"Peg(x=1324.8,y=400,w=30,h=20,score=100)\",\"Peg(x=1382.4,y=300,w=30,h=20,score=100)\",\"Bounce(x=1497.6000000000001,y=500,w=30,h=20)\",\"Peg(x=1440,y=400,w=30,h=20,score=100)\",\"Peg(x=1497.6000000000001,y=300,w=30,h=20,score=100)\",\"Bounce(x=1612.8000000000002,y=500,w=30,h=20)\",\"Peg(x=1555.2,y=400,w=30,h=20,score=100)\",\"Peg(x=1612.8000000000002,y=300,w=30,h=20,score=100)\",\"Bounce(x=1728,y=500,w=30,h=20)\",\"Peg(x=1670.3999999999999,y=400,w=30,h=20,score=100)\",\"Peg(x=1728,y=300,w=30,h=20,score=100)\",\"MovingPeg(x=460.8,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=0,yo=0)\",\"MovingPeg(x=576,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=42.35294117647059,yo=24)\",\"MovingPeg(x=691.2,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=84.70588235294117,yo=48)\",\"MovingPeg(x=806.4000000000001,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=127.05882352941177,yo=72)\",\"MovingPeg(x=921.6,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=169.41176470588235,yo=96)\",\"MovingPeg(x=1036.8,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=211.76470588235293,yo=120)\",\"MovingPeg(x=1152,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=254.11764705882354,yo=144)\",\"MovingPeg(x=1267.2,y=200,w=30,h=20,score=200,xd=0,yd=50,xo=296.4705882352941,yo=168)\",\"MultiBall(x=500,y=250,w=30,h=20,score=500,ballAmount=3)\",\"FloorPeg(x=500,y=100,w=30,h=20,score=500,saveTimeMs=5000)\",\"Wall(x=1000,y=550,w=100,h=20)\",\"Wall(x=890,y=550,w=100,h=20)\",\"Wall(x=1110,y=550,w=100,h=20)\",\"Bounce(x=800,y=550,w=70,h=20)\",\"KeyPeg(x=1000,y=150,w=30,h=20,score=500,targets= [walls[55],walls[56],walls[57]],color='#40ff00')\",\"FloorPeg(x=1040,y=580,w=30,h=20,score=500,saveTimeMs=5000)\",\"BoundaryWall(x=-100,y=0,w=102,h=937)\",\"BoundaryWall(x=1918,y=0,w=100,h=937)\",\"BoundaryWall(x=0,y=-10,w=1920,h=12)\"]");
 updateScore();
 setInterval(main,5);
 
 //TODO ghost blocks to toggle?
+//TODO tought blocks require multiple hits?
 //DONE slime block to reduce speed?
 //TODO bomb ball?
 //TODO glass blocks to shatter?

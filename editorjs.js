@@ -4,6 +4,7 @@ let GRAVITY = 0.07;
 let editoroptions = new Map([["w",30],["h",20]]);
 let editorhelp = new Map([["targets","wall indexes, use commas"],["color","#AABBCC"],["xo","movement phase offset"],["xd","movement distance delta"]])
 const modal = document.getElementById("editormodal");
+const helpmodal = document.getElementById("helpmodal");
 const forbidden_attrs = ["x", "y","elem","origX","origY"]; //attrs that should not be set manually and therefore should not appear in the editor
 let startpos = null; //event, for where the dragging has started
 let paused = true;
@@ -19,9 +20,52 @@ let selectedWalls = [];
 let xspacing = 0;
 let yspacing = 0;
 
+const buildhelp = "-Click to place a block. Hold and drag to change shape.\n" +
+    "-Hold shift to lock the dimensions to a 1:1 ratio.\n" +
+    "-Hold alt to place multiple blocks in a line. By holding alt you pick a direction and spacing between your first and all consecutive blocks,\n"+
+    "then by dragging you specify the amount of blocks to place.\n" +
+    "-Use the Wall type dropdown to change the block type.\n" +
+    "-Use the Options to change the placed block's attributes.\n" +
+    "-Use the Pause/Unpause button to start/stop simulating the moving pegs' movement pattern.\n" +
+    "-Use the Export button to save a level, Import to load it.\n" +
+    "-The Clear button deletes all blocks.\n"
+
+const selecthelp = "-Click and drag to select multiple blocks, " +
+    "or just click on a block to select it.\n" +
+    "-By holding Shift you can add to an existing selection.\n" +
+    "-By holding Alt you can remove from an existing selection.\n" +
+    "-By holding both Shift and Alt you can make a boolean intersection between the existing selection and the new selection.\n" +
+    "-The Select all button selects all blocks, Deselect discards the selection.\n" +
+    "-The Select all of type button selects all blocks of the same type as the block type selected in the dropdown menu.\n" +
+    "-The Invert selection selects all blocks not currently in your selection.\n" +
+    "-Shift and Alt modifiers work with these buttons as well.\n" +
+    "-Use the Delete button to delete all selected blocks.\n" +
+    "-Use the Options to change the selected blocks' attributes.\n" +
+    "-If multiple blocks are selected, the options will only show attributes that are present in all the selected blocks.\n"
+
+const movehelp = "-Click and drag to move all selected blocks.\n" +
+    "-By holding alt, you can duplicate all selected blocks to the new location.\n" +
+    "-Snap to grid option will snap any block's size and position to the grid.\n"
+
+const help = new Map([["Build",buildhelp],["Select",selecthelp],["Move",movehelp]]);
+const helpbtn = document.getElementById("openhelp");
+
+helpbtn.onclick = function(){
+
+    helpmodal.innerText = help.get(editormode);
+    let buttonElement = document.createElement("button");
+    buttonElement.innerText = "Close";
+    buttonElement.onclick = function(){
+        helpmodal.close();
+    }
+    helpmodal.appendChild(buttonElement);
+    helpmodal.showModal();
+}
+
+
 window.onmousedown = function(event) {
     document.getElementById("tutorial").style.visibility = "hidden"
-    if(modal.open){return}
+    if(modal.open || helpmodal.open){return}
     let wallobj;
     if (event.clientY > 60) {
         startpos = event
@@ -320,7 +364,9 @@ window.onmousemove = function(event) {
             }
         }
     else if(editormode==="Build"){
-        lastwall.elem.classList.remove("selected")
+        if(lastwall!=null){
+            lastwall.elem.classList.remove("selected")
+        }
         $(".ghostwall").remove();
     }
 
@@ -350,11 +396,13 @@ document.getElementById("editormode").addEventListener("click",function(event){
         handleSelection([]);
         document.getElementById("selall").disabled = true;
         document.getElementById("seltype").disabled = true;
+        document.getElementById("invertsel").disabled = true;
         deselbtn.disabled = true;
     }else{
         deselbtn.disabled = false;
         document.getElementById("selall").disabled = false;
         document.getElementById("seltype").disabled = false;
+        document.getElementById("invertsel").disabled = false;
 
     }
 
@@ -388,6 +436,12 @@ document.getElementById("pause").onclick = function (event) {
 
 deselbtn.onclick = function (event) {
     handleSelection([]); //deselect all walls
+}
+
+document.getElementById("invertsel").onclick = function (event) {
+    handleSelection(walls.filter(x=>{
+        return !(selectedWalls.includes(x)) && !(x instanceof BoundaryWall)
+    }), event); //deselect all walls
 }
 
 document.getElementById("selall").onclick = function (event) {
@@ -521,7 +575,6 @@ document.getElementById("editoroptions").addEventListener("click", function (eve
 
 addEventListener("selectstart", event => event.preventDefault());
 
-
 const walltypes =  new Map(classes.map( item => [new item().constructor.name, item])); //map of wall class names to wall classes
 walltypes.forEach((v,k)=>{ //why are k,v flipped?
     const opt = document.createElement("option");
@@ -530,6 +583,9 @@ walltypes.forEach((v,k)=>{ //why are k,v flipped?
     walltypesel.appendChild(opt); //add each wall type to the wall type selector
 })
 let WALLTYPE = walltypesel.value;
+Array.from($(".wall")).map((elem,i  )=> { //removing the walls from the DOM, that were initialized when making the dropdown
+    elem.remove();
+})
 
 function exportLevel(){
     let exportstring = JSON.stringify(walls)

@@ -367,7 +367,6 @@ class FloorPeg extends Peg{
 
 class KeyPeg extends Peg{
     constructor(x, y, w, h, score=500, targets, color, elem) {
-        console.log(targets)
         super(x,y,w,h,score,elem);
         this.elem.classList.add("keypeg")
         this.targets = targets
@@ -435,7 +434,7 @@ class MultiBall extends Peg{
     constructor(x, y, w, h, score=500, ballAmount=3, elem) {
         super(x,y,w,h,score,elem);
         this.ballAmount = ballAmount
-        this.elem.classList = ["multiball"];
+        this.elem.classList.add("multiball")
     }
 
     break(){
